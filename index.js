@@ -31,17 +31,26 @@ app.get("/api/hello", function (req, res) {
 
 // http://localhost:3000/api/2015-12-25
 
-app.get("/api/:timestamp", (req, res) => {
+app.get("/api/:timestamp?", (req, res) => {
   const param = req.params.timestamp;
-  if (/^\d+$/.test(param)) {
+  let date;
+
+  if (!param) {
+    // Kasus: tidak ada parameter, pakai waktu sekarang
+    date = new Date();
+  } else if (/^\d+$/.test(param)) {
+    // Kasus: param hanya angka, artinya UNIX timestamp
     date = new Date(parseInt(param));
   } else {
+    // Kasus: param string format UTC (ex: 2015-12-25)
     date = new Date(param);
   }
+
   // Cek apakah date valid
   if (isNaN(date.getTime())) {
     return res.json({ error: "Invalid Date" });
   }
+
   // return response
   res.json({
     unix: date.getTime(),
